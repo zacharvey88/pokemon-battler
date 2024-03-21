@@ -4,6 +4,7 @@ class Pokemon {
     this.hitPoints = hitPoints
     this.atkDmg = atkDmg
     this.move = move
+    this.type = null
   }
 
   takeDmg(dmg) {
@@ -27,10 +28,34 @@ class Pokemon {
 
 class Normal extends Pokemon {
     constructor(name, hitPoints, atkDmg, move, type) {
-      super(name, hitPoints, atkDmg, move, 'normal')
-      this.type = type
+      super(name, hitPoints, atkDmg, move, type)
+      this.type = 'normal'
     }
   }
 
+class Fire extends Pokemon {
+  constructor(name, hitPoints, atkDmg, move, type) {
+    super(name, hitPoints, atkDmg, move, type)
+    this.type = 'fire'
+  }
 
-module.exports = Pokemon, Normal
+  isEffectiveAgainst(opponent) {
+    if (opponent.type === 'grass') {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  isWeakTo(opponent) {
+    if (opponent.type === 'water') {
+      return true
+    } else {
+      return false
+    }
+  }
+}
+
+
+
+module.exports = {Pokemon, Normal, Fire, Water, Grass}

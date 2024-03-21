@@ -1,5 +1,4 @@
-const Pokemon = require('../pokemon.js')
-const Normal = require('../pokemon.js')
+const {Pokemon, Normal, Fire, Water, Grass} = require('../pokemon.js')
 
 describe('catchPokemon', () => {
 
@@ -41,12 +40,12 @@ describe('catchPokemon', () => {
     expect(Eevee.hasFainted()).toBe(true)
   })
 
-  test.only('When a new pokemon class is created using Fire, add all properties of parent constructor plus type (normal)', () => {
+  test('When a new pokemon class is created using a the type constructor, add all properties of parent constructor plus type (normal)', () => {
     // Arrange
+    const expected = {name:'Eevee', hitPoints:55, atkDmg:18, move:'headbutt', type: 'normal'}
     // Act
     const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    console.log(Eevee);
     // Assert
-    expect(Eevee.type).toBe('normal')
+    expect(Eevee).toEqual(expected)
   })
 });

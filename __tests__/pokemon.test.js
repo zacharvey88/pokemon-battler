@@ -1,171 +1,276 @@
-const { Pokemon, Normal, Fire, Water, Grass, Charmander, Squirtle, Bulbasaur, Rattata, Pokeball, Trainer } = require('../pokemon.js')
+const { Pokemon, Trainer, Battle, Pokeball, Greatball, Ultraball, Masterball} = require("../pokemon.js");
+
+describe("Pokemon Constructor", () => {
+  test("Invoking Pokemon constructor with a name arg should create a new instance of the naemd Pokemon", () => {
+    expect(new Pokemon("Eevee")).toEqual({
+      name: "Eevee", 
+      hp: 55, 
+      atk: 55, 
+      move: "Tackle", 
+      type: "Normal", 
+      rarity: "Uncommon"
+    });
+  });
+
+
+});
+
+describe('Pokemon Methods', () => {
+
+  test("isEffectiveAgainst() - should return a boolean based on the invoking Pokemon's effectiveness against the passed in Pokemon", () => {
+    const Flareon = new Pokemon("Flareon");
+    const Ivysaur = new Pokemon("Ivysaur");
+    const Vaporeon = new Pokemon("Vaporeon");
+    expect(Flareon.isEffectiveAgainst(Ivysaur)).toBe(true);
+    expect(Vaporeon.isEffectiveAgainst(Flareon)).toBe(true);
+    expect(Flareon.isEffectiveAgainst(Vaporeon)).toBe(false);
+  });
+
+  test("isWeakTo() - should return a boolean based on the invoking Pokemon's weakness against the passed in Pokemon", () => {
+    const Flareon = new Pokemon("Flareon");
+    const Ivysaur = new Pokemon("Ivysaur");
+    const Vaporeon = new Pokemon("Vaporeon");
+    expect(Flareon.isWeakTo(Ivysaur)).toBe(false);
+    expect(Vaporeon.isWeakTo(Flareon)).toBe(false);
+    expect(Flareon.isWeakTo(Vaporeon)).toBe(true);
+  });
+
+  test("attack() - should reuce the opponents hp by the attakers atk value", () => {
+    const Pikachu = new Pokemon("Pikachu")
+    const Golem = new Pokemon("Golem")
+    Pikachu.attack(Golem)
+    expect(Golem.hp).toBe(25)
+  })
+
+  test("attack() - if opponents hp will reach 0 or below, should be set at 0 and return 'x fainted' ", () => {
+    const Pikachu = new Pokemon("Pikachu")
+    const Geodude = new Pokemon("Geodude")
+    expect(Pikachu.attack(Geodude)).toBe("Geodude fainted")
+    expect(Geodude.hp).toBe(0)
+  })
+
+  test("attack() - against a Pokemon that you're effective against, should take double damage", () => {
+    const Pikachu = new Pokemon("Pikachu")
+    const Vaporeon = new Pokemon("Vaporeon")
+    Pikachu.attack(Vaporeon)
+    expect(Vaporeon.hp).toBe(20)
+  })
+
+  test("attack() - against a Pokemon that you're weak to, should take half damage", () => {
+    const Pikachu = new Pokemon("Pikachu")
+    const Bulbasaur = new Pokemon("Bulbasaur")
+    Pikachu.attack(Bulbasaur)
+    expect(Bulbasaur.hp).toBe(17.5)
+  })
+
+});
+
+describe('Pokeball Constructor', () => {
+  test("Invoking the Pokeball constructor should create a new instance of Pokeball with default properties", () => {
+    const ball = new Pokeball();
+    expect(ball instanceof Pokeball).toBe(true);
+    expect(ball).toEqual({type: "Pokeball", stored: null})
+  });
+  
+});
+
+
+describe('Pokeball Methods', () => {
+
+  test("Calling isEmpty() should return true if new Pokeball's stored value is null, else false", () => {
+    const ball = new Pokeball();
+    const actual = ball.isEmpty();
+    expect(actual).toBe(true);
+  });
+
+  test("Calling contains() should return 'This Pokeball is empty!' if stored value is null", () => {
+    const ball = new Pokeball();
+    expect(ball.contains()).toBe("This Pokeball is empty!");
+  });
+
+  test("Calling contains() should return the Pokemon's name assigned to stored", () => {
+    const ball = new Pokeball();
+    ball.throw("Eevee");
+    expect(ball.contains()).toBe("Eevee");
+  });
+
+  test("throw() - When ball contains a Pokemon and no arg is provided, will log 'Go x !' and return the Pokemon name", () => {
+    const ball = new Pokeball();
+    ball.throw("Eevee")
+    expect(ball.throw()).toBe("Eevee");
+  });
+
+  test("throw() - When ball contains a Pokemon and arg is provided, will log 'x already stored' and return the Pokemon name", () => {
+    const ball = new Pokeball();
+    ball.throw("Eevee")
+    expect(ball.throw("Sandshrew")).toBe("Eevee");
+  });
+
+  test("throw() - When no arg is provided and the ball is empty, return 'Pokeball empty' ", () => {
+    const ball = new Pokeball();
+    expect(ball.throw()).toBe("Pokeball empty");
+  });
+
+  test("throw() - When an arg is provided and the ball is empty, assign the Pokemon to stored and log 'You caught x' ", () => {
+    const ball = new Pokeball();
+    ball.throw("Eevee")
+    expect(ball.stored).toEqual({
+      name: "Eevee", 
+      hp: 55, 
+      atk: 55, 
+      move: "Tackle", 
+      type: "Normal", 
+      rarity: "Uncommon"
+    });
+  });
+
+});
+
 
 describe('catchPokemon', () => {
 
-  test('When Pokemon constructor is used, returns an object with properties', () => {
-    // Arrange
-    // Act
-    const Eevee = new Pokemon('Eevee', 55, 18, 'headbutt')
-    const actualOutput = (Eevee)
-    // Assert
-    expect(actualOutput).toEqual({ name: 'Eevee', hitPoints: 55, atkDmg: 18, move: 'headbutt', type: null })
-  })
+  test("When invoked on a Trainer with no Pokeballs, should log 'You have no Pokeballs'", () => {
+    const ash = new Trainer('Ash');
+    expect(ash.catchPokemon("Bulbasaur")).toBe("No Pokeballs")
+  });
 
-  test('When takeDmg method is invoked, reduces hitPoints by arg amount', () => {
-    // Arrange
-    // Act
-    const Eevee = new Pokemon('Eevee', 55, 18, 'headbutt')
-    Eevee.takeDmg(10)
-    const actualOutput = (Eevee.hitPoints)
-    // Assert
-    expect(actualOutput).toBe(45)
-  })
 
-  test('When useMove method is invoked, conslose logs and returns atkDmg', () => {
-    // Arrange
-    // Act
-    const Eevee = new Pokemon('Eevee', 55, 18, 'headbutt')
-    const actualOutput = (Eevee.useMove())
-    // Assert
-    expect(actualOutput).toBe(18)
-  })
+  test("When invoked on a Trainer with an emppty Pokeball, should push the Pokemon object to the belt array ", () => {
+    const ash = new Trainer('Ash', 100);
+    ash.buy("Pokeball", 1)
+    ash.catchPokemon("Eevee");
+    expect(ash.belt[0].stored).toEqual({
+      name: "Eevee", 
+      hp: 55, 
+      atk: 55, 
+      move: "Tackle", 
+      type: "Normal", 
+      rarity: "Uncommon"
+    });
+  });
 
-  test('When hasFainted method is invoked, returns correct boolean depending on pokemons hitPoints', () => {
-    // Arrange
-    // Act
-    const Eevee = new Pokemon('Eevee', 55, 18, 'headbutt')
-    // Assert
-    expect(Eevee.hasFainted()).toBe(false)
-    Eevee.takeDmg(55)
-    expect(Eevee.hasFainted()).toBe(true)
-  })
-
-  test('When a new pokemon class is created using a the type constructor, add all properties of parent constructor plus type (normal)', () => {
-    // Arrange
-    const expected = { name: 'Eevee', hitPoints: 55, atkDmg: 18, move: 'headbutt', type: 'Normal' }
-    // Act
-    const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    // Assert
-    expect(Eevee).toEqual(expected)
-  })
-
-  test('test isEffectiveAgainst by passing in a new pokemon', () => {
-    const Flareon = new Fire('Flareon', 65, 20, 'Fire blast')
-    const Leafeon = new Grass('Leafeon', 65, 17, 'Giga drain')
-
-    const actual = Flareon.isEffectiveAgainst(Leafeon);
-
-    expect(actual).toBe(true);
-  })
-
-  test('charmander class extends from fire class', () => {
-    const CharChar = new Charmander('CharChar', 44, 17, 'Flamethrower')
-
-    expect(CharChar instanceof Fire).toBe(true);
-  })
-
-  test('new charmander class should overwrite move to ember ', () => {
-    const CharChar = new Charmander('CharChar', 44, 17)
-
-    expect(CharChar.move).toBe('ember');
-  })
-
-  test('new Rattata class extends from normal class ', () => {
-    const Ratta = new Rattata('Ratta', 30, 15)
-
-    expect(Ratta instanceof Normal).toBe(true);
-    expect(Ratta.move).toBe('tackle');
-  })
-
-  test('creates a new instance of Pokeball', () => {
-    const testPokeball = new Pokeball
-
-    expect(testPokeball instanceof Pokeball).toBe(true);
-  })
-
-  test('if new Pokeball is empty, should return true ', () => {
-    const testPokeball = new Pokeball
-    const actual = testPokeball.isEmpty()
-
-    expect(actual).toBe(true);
-  })
-
-  test('new Pokeball contains should return empty', () => {
-    const testPokeball = new Pokeball
-    const actual = testPokeball.contains()
-
-    expect(actual).toBe('empty ...');
-  })
-
-  test('when throw invoke, but store is empty, will return passed pokemon', () => {
-    const testPokeball = new Pokeball
-    const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    testPokeball.throw(Eevee)
-
-    expect(testPokeball.stored).toEqual({ name: 'Eevee', hitPoints: 55, atkDmg: 18, move: 'headbutt', type: 'Normal' });
-  })
-
-  test('Pokeball contains should return pokemon name when passed pokemon', () => {
-    const testPokeball = new Pokeball
-    const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    testPokeball.throw(Eevee)
-
-    expect(testPokeball.contains()).toBe('Eevee');
-  })
-
-  test('if no argument is pass in throw, and stored is null, should inform pokeball is empty ', () => {
-    const testPokeball = new Pokeball
-
-    expect(testPokeball.throw()).toBe('This Pokeball is empty!');
-  })
-
-  test('when argument is pass in and is empty, it catched the pokemon ', () => {
-    const testPokeball = new Pokeball
-    const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    testPokeball.throw(Eevee)
-
-    expect(testPokeball.stored).toEqual(Eevee)
-  })
-
-  test('if no argument is pass in throw, but has a pokemon, should inform user ', () => {
-    const testPokeball = new Pokeball
-    const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    testPokeball.throw(Eevee)
-    const actual = testPokeball.throw()
-
-    expect(actual).toEqual(Eevee);
-  })
-
-  test('Trainer got up to 6 balls to catch Pokemons', () => {
-    const Ash = new Trainer()
-    const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    Ash.catch(Eevee)
-    console.log(Eevee)
-    const actual = Ash.belt[0].stored
-
-    expect(actual).toEqual(Eevee);
-  })
-
-  test('When belt is full, should inform user', () => {
-    const EeveeTrainer = new Trainer()
-    const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    EeveeTrainer.catch(Eevee)
-    EeveeTrainer.catch(Eevee)
-    EeveeTrainer.catch(Eevee)
-    EeveeTrainer.catch(Eevee)
-    EeveeTrainer.catch(Eevee)
-    EeveeTrainer.catch(Eevee)
-    const actual = EeveeTrainer.catch(Eevee)
-
-    expect(actual).toEqual('No more Pokeballs :(');
-  })
-
-  test('invoke getPokemon and should return via throw pokemon', () => {
-    const EeveeTrainer = new Trainer()
-    const Eevee = new Normal('Eevee', 55, 18, 'headbutt')
-    EeveeTrainer.catch(Eevee)
-    const actual = EeveeTrainer.getPokemon('Eevee')
-
-    expect(actual).toEqual(Eevee);
-  })
+  test("When the all Trainers Pokeballs are full, log 'All your Pokeballs are full' ", () => {
+    const EeveeTrainer = new Trainer("Eevee Trainer", 80);
+    EeveeTrainer.buy("Pokeball",3)
+    EeveeTrainer.catchPokemon("Vaporeon");
+    EeveeTrainer.catchPokemon("Jolteon");
+    EeveeTrainer.catchPokemon("Flareon");
+    expect(EeveeTrainer.belt.every(ball => ball.stored != null)).toBe(true)
+    expect(EeveeTrainer.catchPokemon("Eevee")).toBe("No empty balls");
+  });
 });
+
+describe('choosePokemon', () => {
+
+  test("If all Pokeballs are empty when invoked, return 'You haven't caught any Pokemon' ", () => {
+    const trainer = new Trainer();
+    expect(trainer.choosePokemon("Eevee")).toBe("No Pokemon");
+  });
+
+  test("If there is no matching Pokemon return string 'You don't own this Pokemon' ", () => {
+    const trainer = new Trainer("Trainer", 100);
+    trainer.buy("Pokeball", 1)
+    trainer.catchPokemon("Bulbasaur");
+    expect(trainer.choosePokemon("Eevee")).toBe("You don't own this Pokemon");
+  });
+
+  test("If a matching Pokemon is found, invoke throw method on the instance of Pokeball to return the pokemon object ", () => {
+    const trainer = new Trainer("Trainer", 20);
+    trainer.buy("Pokeball", 1)
+    trainer.catchPokemon("Eevee");
+    expect(trainer.choosePokemon("Eevee")).toEqual("Eevee");
+  });
+
+});
+
+describe('Trainer Methods', () => {
+
+  test("catchRandom() - Should assign a random Pokemon from the Pokedex to an empty ball", () => {
+    const ash = new Trainer('Ash', 20);
+    ash.buy("Pokeball")
+    ash.catchRandom();
+    expect(ash.belt[0].stored instanceof Pokemon).toBe(true);
+  });
+
+  test("catchRandom() - Should only assign a Pokemon of common rarity to Pokeball type", () => {
+    const ash = new Trainer('Ash', 120);
+    ash.buy("Pokeball", 6)
+    ash.catchRandom();
+    ash.catchRandom();
+    ash.catchRandom();
+    ash.catchRandom();
+    ash.catchRandom();
+    ash.catchRandom();
+    expect(ash.belt[0].stored.rarity).toBe('Common');
+    expect(ash.belt[1].stored.rarity).toBe('Common');
+    expect(ash.belt[2].stored.rarity).toBe('Common');
+    expect(ash.belt[3].stored.rarity).toBe('Common');
+    expect(ash.belt[4].stored.rarity).toBe('Common');
+    expect(ash.belt[5].stored.rarity).toBe('Common');
+  });
+
+  test('createTeam() - should call catchRandom for the number of empty balls the trainer has', () => {
+    const ash = new Trainer('Ash', 120)
+    ash.buy('Pokeball', 6)
+    ash.createTeam()
+    expect(ash.belt.length).toBe(6)
+    expect(ash.belt.every((ball) => ball.stored != null)).toEqual(true)
+  })
+
+  test("buy() - if trainer has enough coins, should push new instance of ball to the this.belt and subtract the cost from this.coins", () => {
+    const ash = new Trainer('Ash', 200);
+    ash.buy("Masterball")
+    expect(ash.belt.length).toBe(1);
+    expect(ash.belt[0].type).toBe("Masterball");
+    expect(ash.coins).toBe(0);
+  });
+
+  test("buy() - if trainer doesn't have enough coins, inform the player", () => {
+    const ash = new Trainer('Ash');
+    ash.buy("Masterball")
+    expect(ash.belt.length).toBe(0);
+    expect(ash.belt[0]).toBe(undefined);
+  });
+
+  test('buy () - If qty to buy is greater that max slots on belt, inform the player and cancel transaction', () => {
+    const ash = new Trainer('Ash', 140)
+    ash.buy('Pokeball', 7)
+    expect(ash.belt.length).toEqual(0)
+    expect(ash.coins).toBe(140)
+  })
+
+});
+
+describe.skip("Battle Class", () => {
+
+  test("Battle() - should create a new instance of Battle with two trainers", () => {
+    const ash = new Trainer('Ash');
+    const brock = new Trainer('Brock');
+    const testBattle = new Battle('ash','brock')
+    expect(testBattle).toEqual({player: 'ash', opponent: 'brock'});
+  });
+
+  test("fight() - If either Trainer has no pokemon or all their pokemon have fainted, cancel the fight and inform the player.", () => {
+    const ash = new Trainer('Ash', 100);
+    ash.buy("Pokeball", 5)
+    ash.createTeam()
+    const brock = new Trainer('Brock');
+    const testBattle = new Battle(ash,brock)
+    const output = testBattle.fight()
+    expect(output).toBe("Opponent unable to fight");
+  });
+
+  test("fight() - should begin the battle, calling attack method on the players first pokemon.", () => {
+    const ash = new Trainer('Ash', 100);
+    ash.buy("Pokeball", 5)
+    ash.createTeam()
+    const brock = new Trainer('Brock', 100);
+    brock.buy("Pokeball", 5)
+    brock.createTeam()
+    const testBattle = new Battle(ash,brock)
+    testBattle.fight()
+    expect().toEqual();
+  });
+
+
+})
